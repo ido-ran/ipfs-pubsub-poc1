@@ -5,6 +5,8 @@ const IPFS = require('ipfs')
 
 const stringToUse = 'hello world from webpacked IPFS'
 
+let node
+
 class App extends React.Component {
   constructor (props) {
     super(props)
@@ -18,7 +20,6 @@ class App extends React.Component {
   }
   componentDidMount () {
     const self = this
-    let node
 
     create()
 
@@ -35,6 +36,11 @@ class App extends React.Component {
       node.once('ready', () => {
         console.log('IPFS node is ready')
         ops()
+
+      //  node.swarm.connect('/ip4/192.168.14.81/tcp/9999/ws/ipfs/Qmcp2n4xufwfgYsdYXSkiUNufDzVhvb63ZeQJHnQZa9W9i', (err) => {
+      //   // node.swarm.connect('/dns4/wss0.bootstrap.libp2p.io/tcp/443/wss/ipfs/QmZMxNdpMkewiVZLMRxaNxUeZpDUb34pWjZ1kZvsd16Zic', (err) => {
+      //     console.log('err', err)
+      //   })        
 
         // data should be a buffer
         const data = Buffer.from('some message content here')
@@ -74,6 +80,30 @@ class App extends React.Component {
       })
     }
   }
+
+  getId() {
+    node.swarm.peers((err, peers) => {
+      if (err) {
+        console.error(err);
+      }
+      console.log(peers)
+    })
+
+  }
+
+  pub() {
+    // data should be a buffer
+    const data = Buffer.from('some message content here')
+
+    node.pubsub.publish('poc1', data, (err) => {
+      if (err) {
+        console.error('error publishing: ', err)
+      } else {
+        console.log('successfully published message')
+      }
+    })    
+  }
+  
   render () {
     return (
       <div style={{textAlign: 'center'}}>
@@ -91,6 +121,10 @@ class App extends React.Component {
         <p>
           Contents of this file: <br />
           {this.state.added_file_contents}
+        </p>
+        <p>
+          <button onClick={this.getId}>getId</button>
+          <button onClick={this.pub}>pub</button>
         </p>
       </div>
     )
